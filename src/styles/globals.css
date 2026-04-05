@@ -1,0 +1,309 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-syne: 'Syne', sans-serif;
+
+  /* Light mode */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #f1f3f4;
+  --border: #e8eaed;
+  --text-primary: #111213;
+  --text-secondary: #5f6368;
+  --text-muted: #80868b;
+  --card-bg: #ffffff;
+  --card-border: rgba(0,0,0,0.08);
+  --sidebar-bg: #ffffff;
+  --header-bg: rgba(255,255,255,0.85);
+  --up: #00c176;
+  --down: #ef4444;
+  --warn: #f59e0b;
+  --brand: #00c47e;
+}
+
+.dark {
+  --bg-primary: #111213;
+  --bg-secondary: #18191b;
+  --bg-tertiary: #202124;
+  --border: rgba(255,255,255,0.08);
+  --text-primary: #e8eaed;
+  --text-secondary: #9aa0a6;
+  --text-muted: #5f6368;
+  --card-bg: #18191b;
+  --card-border: rgba(255,255,255,0.07);
+  --sidebar-bg: #111213;
+  --header-bg: rgba(17,18,19,0.85);
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ─── Typography ─────────────────────────────────────────────────────────────── */
+.font-display { font-family: var(--font-syne), sans-serif; }
+
+.price-up    { color: var(--up); }
+.price-down  { color: var(--down); }
+.price-warn  { color: var(--warn); }
+
+/* ─── Card ───────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+}
+
+.card-hover {
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.card-hover:hover {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 1px var(--brand), 0 4px 16px rgba(0,196,126,0.1);
+  transform: translateY(-1px);
+}
+
+/* ─── Ticker Tape ────────────────────────────────────────────────────────────── */
+.ticker-tape {
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ticker-inner {
+  display: inline-block;
+  animation: ticker 60s linear infinite;
+}
+.ticker-inner:hover { animation-play-state: paused; }
+
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ─── Price Flash ────────────────────────────────────────────────────────────── */
+.flash-up {
+  animation: flashUp 0.6s ease-out;
+}
+.flash-down {
+  animation: flashDown 0.6s ease-out;
+}
+
+@keyframes flashUp {
+  0%   { background: rgba(0,193,118,0.25); }
+  100% { background: transparent; }
+}
+@keyframes flashDown {
+  0%   { background: rgba(239,68,68,0.25); }
+  100% { background: transparent; }
+}
+
+/* ─── Skeleton Loader ────────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 25%,
+    var(--border) 50%,
+    var(--bg-tertiary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Market Status Badge ─────────────────────────────────────────────────────── */
+.badge-open {
+  background: rgba(0,193,118,0.1);
+  color: var(--up);
+  border: 1px solid rgba(0,193,118,0.2);
+}
+.badge-closed {
+  background: rgba(239,68,68,0.1);
+  color: var(--down);
+  border: 1px solid rgba(239,68,68,0.2);
+}
+.badge-premarket {
+  background: rgba(245,158,11,0.1);
+  color: var(--warn);
+  border: 1px solid rgba(245,158,11,0.2);
+}
+
+/* ─── Green Pulse (live indicator) ──────────────────────────────────────────── */
+.live-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--up);
+  animation: livePulse 2s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,193,118,0.6); }
+  50%      { box-shadow: 0 0 0 6px rgba(0,193,118,0); }
+}
+
+/* ─── Chart Container ────────────────────────────────────────────────────────── */
+.chart-container {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ─── Table ──────────────────────────────────────────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--card-bg);
+  z-index: 1;
+}
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.data-table tr:hover td {
+  background: var(--bg-secondary);
+}
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ─── Input ──────────────────────────────────────────────────────────────────── */
+.input {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(0,196,126,0.15);
+}
+
+/* ─── Button variants ────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+  outline: none;
+}
+.btn-primary {
+  background: var(--brand);
+  color: #000;
+}
+.btn-primary:hover { filter: brightness(1.1); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.btn-danger {
+  background: rgba(239,68,68,0.1);
+  color: var(--down);
+  border: 1px solid rgba(239,68,68,0.2);
+}
+.btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+/* ─── AI Bot Panel ───────────────────────────────────────────────────────────── */
+.ai-bot-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  box-shadow: 0 24px 48px rgba(0,0,0,0.3);
+}
+
+/* ─── Sidebar ────────────────────────────────────────────────────────────────── */
+.sidebar {
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 40;
+  transition: width 0.2s;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────────── */
+.header {
+  background: var(--header-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+/* ─── Grid layouts ───────────────────────────────────────────────────────────── */
+.market-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+}
+.fullscreen-active .sidebar {
+  display: none !important;
+}
+.fullscreen-active > div {
+  margin-left: 0 !important;
+}
