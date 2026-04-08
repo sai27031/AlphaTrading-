@@ -1,56 +1,43 @@
 'use client'
-
-import { useEffect, useRef, useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { TrendingUp, TrendingDown } from 'lucide-react'
-import { Index } from '@/types'
-import { formatPrice, formatChangePct, getPriceColor, cn } from '@/lib/utils'
-import Link from 'next/link'
 
-interface IndexCardProps {
-  index: Index
+interface Props {
+  index: {
+    name: string
+    value: number
+    change: number
+    changePct: number
+  }
 }
 
-export function IndexCard({ index }: IndexCardProps) {
+export function IndexCard({ index }: Props) {
   const [flash, setFlash] = useState<'up' | 'down' | null>(null)
-  const prevValue = useRef(index.value)
+  const prev = useRef(index.value)
 
   useEffect(() => {
-    if (index.value !== prevValue.current) {
-      setFlash(index.value > prevValue.current ? 'up' : 'down')
-      prevValue.current = index.value
-      const t = setTimeout(() => setFlash(null), 600)
+    if (index.value !== prev.current) {
+      setFlash(index.value > prev.current ? 'up' : 'down')
+      prev.current = index.value
+      const t = setTimeout(() => setFlash(null), 700)
       return () => clearTimeout(t)
     }
   }, [index.value])
 
-  const isVIX = index.name.includes('VIX')
   const up = index.changePct >= 0
-  const symbol = encodeURIComponent(index.symbol)
 
   return (
-    <Link href={`/charts?symbol=${symbol}`}>
-      <div
-        className={cn(
-          'card card-hover p-3 cursor-pointer transition-all',
-          flash === 'up' ? 'flash-up' : flash === 'down' ? 'flash-down' : ''
-        )}
-      >
-        <p className="text-xs font-500 truncate" style={{ color: 'var(--text-muted)' }}>
-          {index.name}
-        </p>
-
-        <p className="font-display text-base font-700 mt-1.5 tabular-nums" style={{ color: 'var(--text-primary)' }}>
-          {formatPrice(index.value)}
-        </p>
-
-        <div className={`flex items-center gap-1 mt-1 text-xs font-500 ${getPriceColor(isVIX ? -index.changePct : index.changePct)}`}>
-          {up ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-          <span>{formatChangePct(index.changePct)}</span>
-          <span className="font-400" style={{ color: 'var(--text-muted)' }}>
-            ({index.change > 0 ? '+' : ''}{formatPrice(index.change)})
-          </span>
-        </div>
-      </div>
-    </Link>
+    <div className={`card ${flash ? `flash-${flash}` : ''}`} style={{ padding: '14px 16px' }}>
+      <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '.08em', color: 'var(--text-muted)', marginBottom: 6 }}>
+        {index.name}
+      </p>
+      <p style={{ fontSize: 18, fontWeight: 700, fontFamily: 'Space Grotesk, sans-serif', color: 'var(--text-primary)', marginBottom: 4 }}>
+        {index.value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+      </p>
+      <p style={{ fontSize: 12, fontWeight: 600, color: up ? 'var(--up)' : 'var(--down)', display: 'flex', alignItems: 'center', gap: 3 }}>
+        {up ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+        {up ? '+' : ''}{index.changePct.toFixed(2)}%
+      </p>
+    </div>
   )
 }
