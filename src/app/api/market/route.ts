@@ -4,13 +4,43 @@ const ANGEL_API_KEY = 'Ljx312JF'
 const ANGEL_CLIENT_ID = 'T57142456'
 const ANGEL_PIN = '2005'
 
-// Token cache that persists across requests
+import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { join } from 'path'
+
+const TOKEN_FILE = join(process.cwd(), '.token-cache.json')
+
+function saveToken(token: string) {
+  try {
+    writeFileSync(TOKEN_FILE, JSON.stringify({ token, expiry: Date.now() + 3 * 60 * 60 * 1000 }))
+  } catch (e) {}
+}
+
+function loadToken(): { token: string | null, expiry: number } {
+  try {
+    if (existsSync(TOKEN_FILE)) {
+      const data = JSON.parse(readFileSync(TOKEN_FILE, 'utf-8'))
+      return data
+    }
+  } catch (e) {}
+  return { token: null, expiry: 0 }
+}
+
 let cachedToken: string | null = null
 let tokenExpiry = 0
-let isRefreshing = false
+
+// Load token from file on startup
+const saved = loadToken()
+if (saved.token && Date.now() < saved.expiry) {
+  cachedToken = saved.token
+  tokenExpiry = saved.expiry
+}
 
 const INDEX_TOKENS = {
-  'NSE': ['99926000', '99926009', '99926037', '99926074', '99919000'],
+  'NSE': [
+    '99926000', '99926009', '99926037', '99926074', '99919000',
+    '3456', '1594', '11536', '772', '3045',
+    '5900', '1333', '881', '317', '14977',
+  ],
   'BSE': ['999944'],
 }
 
@@ -41,9 +71,10 @@ async function loginWithTOTP(totp: string): Promise<string | null> {
     const data = await res.json()
     if (data?.data?.jwtToken) {
       cachedToken = data.data.jwtToken
-      tokenExpiry = Date.now() + 3 * 60 * 60 * 1000 // 3 hours
-      console.log('[Angel One] Login successful')
-      return cachedToken
+tokenExpiry = Date.now() + 3 * 60 * 60 * 1000 // 3 hours
+saveToken(cachedToken)
+console.log('[Angel One] Login successful')
+return cachedToken
     }
     console.error('[Angel One] Login failed:', data)
     return null
@@ -115,19 +146,31 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ authenticated: true, live: false, indices: [], error: 'No market data' })
     }
 
-    const indices = data.data.fetched.map((item: any) => ({
-      name: TOKEN_NAMES[item.symboltoken] || item.tradingSymbol,
-      symbol: item.symboltoken,
-      value: parseFloat(item.ltp || 0),
-      change: parseFloat(item.netchange || 0),
-      changePct: parseFloat(item.percentchange || 0),
-      open: parseFloat(item.open || 0),
-      high: parseFloat(item.high || 0),
-      low: parseFloat(item.low || 0),
-      prevClose: parseFloat(item.close || 0),
-      volume: parseInt(item.tradedVolume || 0),
-      timestamp: Date.now(),
-    }))
+    const indices = data.data.fetched.map((item: any) => {
+  const ltp = parseFloat(item.ltp || 0)
+  const prevClose = parseFloat(item.close || 0)
+  const change = parseFloat(item.netchange || 0) || (ltp - prevClose)
+  const changePct = parseFloat(item.percentchange || 0) || 
+    (prevClose > 0 ? ((ltp - prevClose) / prevClose) * 100 : 0)
+  
+  // Clean up name — remove -EQ suffix
+  const rawName = TOKEN_NAMES[item.symboltoken] || item.tradingSymbol || ''
+  const cleanName = rawName.replace('-EQ', '').replace('_EQ', '')
+
+  return {
+    name: cleanName,
+    symbol: item.symboltoken,
+    value: ltp,
+    change: parseFloat(change.toFixed(2)),
+    changePct: parseFloat(changePct.toFixed(2)),
+    open: parseFloat(item.open || 0),
+    high: parseFloat(item.high || 0),
+    low: parseFloat(item.low || 0),
+    prevClose,
+    volume: parseInt(item.tradedVolume || 0),
+    timestamp: Date.now(),
+  }
+})
 
     return NextResponse.json({ authenticated: true, live: true, indices })
 

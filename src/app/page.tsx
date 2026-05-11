@@ -98,7 +98,12 @@ export default function DashboardPage() {
     setTotp('')
   }
 
-  const displayIndices = indices.length > 0 ? indices : MOCK_INDICES
+ const allIndices = indices.length > 0 ? indices : MOCK_INDICES
+const displayIndices = allIndices.filter(idx =>
+  ['NIFTY 50', 'SENSEX', 'NIFTY BANK', 'NIFTY IT', 'NIFTY MIDCAP 100',
+   'INDIA VIX', 'Nifty Fin Service', 'NIFTY MID SELECT',
+   'Nifty Bank', 'Nifty 50'].includes(idx.name)
+).slice(0, 6)
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

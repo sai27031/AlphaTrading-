@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { useUIStore, useAIBotStore } from '@/lib/store'
 import {
   LayoutDashboard, TrendingUp, BarChart2, Briefcase,
-  Star, Calendar, Newspaper, Bot, ChevronLeft, LogIn, Moon, Sun, Zap
+  Star, Calendar, Newspaper, Bot, ChevronLeft, Moon, Sun, Zap
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -23,7 +23,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const { sidebarCollapsed, toggleSidebar } = useUIStore()
   const { toggleBot } = useAIBotStore()
-  const [isDark, setIsDark] = useState(true)
+  const [isDark, setIsDark] = useState(false)
   const [mounted, setMounted] = useState(false)
   const width = sidebarCollapsed ? 64 : 240
 
@@ -68,7 +68,29 @@ export function Sidebar() {
   const themeText = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)'
   const collapseBtn = isDark ? { bg: '#1a1a1a', border: '#333', color: '#666' } : { bg: '#f3f4f6', border: '#e5e7eb', color: '#9ca3af' }
 
-  if (!mounted) return <div style={{ width, background: '#000', height: '100vh', position: 'fixed', top: 0, left: 0 }} />
+  if (!mounted) return (
+  <div style={{
+    width: 240,
+    background: 'var(--sidebar-bg)',
+    borderRight: '1px solid var(--border)',
+    height: '100vh',
+    position: 'fixed',
+    top: 0, left: 0,
+    zIndex: 40,
+    display: 'flex',
+    flexDirection: 'column',
+  }}>
+    <div style={{ padding: '20px 16px', borderBottom: '1px solid var(--border)', height: 64, display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ width: 32, height: 32, background: 'var(--text-primary)', borderRadius: 8 }} />
+      <div style={{ width: 100, height: 16, background: 'var(--bg-tertiary)', borderRadius: 4 }} />
+    </div>
+    <div style={{ padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+      {[1,2,3,4,5,6,7].map(i => (
+        <div key={i} style={{ height: 38, borderRadius: 9, background: 'var(--bg-secondary)', marginBottom: 2 }} />
+      ))}
+    </div>
+  </div>
+)
 
   return (
     <aside style={{
@@ -162,20 +184,6 @@ export function Sidebar() {
           {isDark ? <Sun size={15} style={{ flexShrink: 0 }} /> : <Moon size={15} style={{ flexShrink: 0 }} />}
           {!sidebarCollapsed && <span>{isDark ? 'Light mode' : 'Dark mode'}</span>}
         </button>
-
-        <Link
-          href="/auth/login"
-          style={{
-            display: 'flex', alignItems: 'center', gap: 12,
-            padding: '10px 12px', borderRadius: 9, fontSize: 13,
-            color: themeText, textDecoration: 'none', whiteSpace: 'nowrap', transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = inactiveNavHoverBg }}
-          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'transparent' }}
-        >
-          <LogIn size={15} style={{ flexShrink: 0 }} />
-          {!sidebarCollapsed && <span>Login</span>}
-        </Link>
       </div>
 
       {/* Collapse toggle */}

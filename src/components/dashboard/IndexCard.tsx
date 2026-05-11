@@ -27,17 +27,22 @@ export function IndexCard({ index }: Props) {
   const up = index.changePct >= 0
 
   return (
-    <div className={`card ${flash ? `flash-${flash}` : ''}`} style={{ padding: '14px 16px' }}>
+    <div className={`card ${flash ? `flash-${flash}` : ''}`} style={{ padding: '14px 16px', transition: 'background 0.3s' }}>
       <p style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '.08em', color: 'var(--text-muted)', marginBottom: 6 }}>
         {index.name}
       </p>
       <p style={{ fontSize: 18, fontWeight: 700, fontFamily: 'Space Grotesk, sans-serif', color: 'var(--text-primary)', marginBottom: 4 }}>
         {index.value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </p>
-      <p style={{ fontSize: 12, fontWeight: 600, color: up ? 'var(--up)' : 'var(--down)', display: 'flex', alignItems: 'center', gap: 3 }}>
-        {up ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-        {up ? '+' : ''}{index.changePct.toFixed(2)}%
-      </p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <p style={{ fontSize: 12, fontWeight: 600, color: up ? 'var(--up)' : 'var(--down)', display: 'flex', alignItems: 'center', gap: 3 }}>
+          {up ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+          {up ? '+' : ''}{index.changePct.toFixed(2)}%
+        </p>
+        <p style={{ fontSize: 11, color: up ? 'var(--up)' : 'var(--down)' }}>
+          ({up ? '+' : ''}₹{Math.abs(index.change).toFixed(2)})
+        </p>
+      </div>
     </div>
   )
 }
