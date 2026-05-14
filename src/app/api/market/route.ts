@@ -72,7 +72,7 @@ async function loginWithTOTP(totp: string): Promise<string | null> {
     if (data?.data?.jwtToken) {
       cachedToken = data.data.jwtToken
 tokenExpiry = Date.now() + 3 * 60 * 60 * 1000 // 3 hours
-saveToken(cachedToken)
+saveToken(cachedToken!)
 console.log('[Angel One] Login successful')
 return cachedToken
     }
