@@ -4,36 +4,29 @@ const ANGEL_API_KEY = process.env.ANGEL_API_KEY || 'Ljx312JF'
 const ANGEL_CLIENT_ID = process.env.ANGEL_CLIENT_ID || 'T57142456'
 const ANGEL_PIN = process.env.ANGEL_PIN || '2005'
 
-import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { join } from 'path'
+import { Redis } from '@upstash/redis'
 
-const TOKEN_FILE = join(process.cwd(), '.token-cache.json')
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+})
 
-function saveToken(token: string) {
+async function saveToken(token: string) {
   try {
-    writeFileSync(TOKEN_FILE, JSON.stringify({ token, expiry: Date.now() + 3 * 60 * 60 * 1000 }))
+    await redis.set('angel_token', JSON.stringify({ token, expiry: Date.now() + 3 * 60 * 60 * 1000 }), { ex: 10800 })
   } catch (e) {}
 }
 
-function loadToken(): { token: string | null, expiry: number } {
+async function loadToken(): Promise<{ token: string | null, expiry: number }> {
   try {
-    if (existsSync(TOKEN_FILE)) {
-      const data = JSON.parse(readFileSync(TOKEN_FILE, 'utf-8'))
-      return data
-    }
+    const data = await redis.get<{ token: string, expiry: number }>('angel_token')
+    if (data) return data
   } catch (e) {}
   return { token: null, expiry: 0 }
 }
 
 let cachedToken: string | null = null
 let tokenExpiry = 0
-
-// Load token from file on startup
-const saved = loadToken()
-if (saved.token && Date.now() < saved.expiry) {
-  cachedToken = saved.token
-  tokenExpiry = saved.expiry
-}
 
 const INDEX_TOKENS = {
   'NSE': [
