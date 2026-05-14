@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const ANGEL_API_KEY = 'Ljx312JF'
-const ANGEL_CLIENT_ID = 'T57142456'
-const ANGEL_PIN = '2005'
+const ANGEL_API_KEY = process.env.ANGEL_API_KEY || 'Ljx312JF'
+const ANGEL_CLIENT_ID = process.env.ANGEL_CLIENT_ID || 'T57142456'
+const ANGEL_PIN = process.env.ANGEL_PIN || '2005'
 
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { join } from 'path'
