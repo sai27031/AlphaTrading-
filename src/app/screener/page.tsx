@@ -59,7 +59,6 @@ export default function ScreenerPage() {
     if (sortBy === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
     else { setSortBy(key); setSortDir('desc') }
   }
-
   const filtered = useMemo(() => STOCKS.filter(s => {
     if (search && !s.symbol.toLowerCase().includes(search.toLowerCase()) && !s.name.toLowerCase().includes(search.toLowerCase())) return false
     if (sector !== 'All' && s.sector !== sector) return false

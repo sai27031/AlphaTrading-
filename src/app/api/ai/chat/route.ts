@@ -27,13 +27,14 @@ export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json()
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,      },
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+      },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'openai/gpt-oss-120b',
         max_tokens: 1024,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
@@ -45,9 +46,12 @@ export async function POST(req: NextRequest) {
     const data = await response.json()
 
     if (!response.ok) {
-      console.error('Groq error:', data)
+      console.error('Groq error:', JSON.stringify(data))
+      const errorMessage = data?.error?.message
+        || data?.message
+        || `Groq API returned status ${response.status}`
       return NextResponse.json({
-        content: `API Error: ${data.error?.message || 'Unknown error'}.`
+        content: `API Error: ${errorMessage}`
       })
     }
 
